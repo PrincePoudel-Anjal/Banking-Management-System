@@ -1,0 +1,36 @@
+$kind: http-request
+url: http://localhost:5000/api
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    // {
+    //     //Register
+    //     // "email":"prince123poudel@gmail.com",
+    //     // "password":"12345678",
+    //     // "name":"Prince"
+
+    //     //create account
+    //     // "user":"prince123poudel@gmail.com",
+    //     // "name":"Prince"
+
+    //     //login
+    //     // "email":"prince123poudel@gmail.com",
+    //     // "password":"12345678"
+
+    //     //deposit
+    //     // "user":"6aeb4da6194520490b536753",
+    //     // "moneyadd":10000,
+    //     // "Description":"Money has been Deposited.",
+    //     // "IdempotencyKey":"11"
+
+
+    //     //transfer
+    //     // "fromAccount": "6aeb4da6194520490b536753",
+    //     // "toAccount": "6aedcf922bc7fad7f180bf84",
+    //     // "amount": 10000,
+    //     // "IdempotencyKey": "12"
+    // }
+order: 1000

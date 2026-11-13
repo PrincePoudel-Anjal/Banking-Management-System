@@ -1,0 +1,807 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Banking Management System API",
+    "version": "1.0.0",
+    "description": "Production-ready REST API documentation for the Banking Management System. This API handles user registration/login, account creation, deposits, and double-entry ledger-backed money transfers.",
+    "contact": {
+      "name": "API Support",
+      "email": "support@banking-system.local"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "User signup, login, and JWT cookie session management"
+    },
+    {
+      "name": "Accounts",
+      "description": "Account creation and management"
+    },
+    {
+      "name": "Transactions",
+      "description": "Financial transactions including cash deposits and peer-to-peer transfers"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "token",
+        "description": "JWT session cookie received upon successful login or registration"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Optional Bearer JWT token header"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "6724ba1f80164e24ef5471a1"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john.doe@example.com"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-07T10:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-07T10:00:00.000Z"
+          }
+        }
+      },
+      "UserRegisterRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Unique username / full name",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Unique valid email address",
+            "example": "john.doe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "description": "User password (minimum 8 characters)",
+            "example": "SecurePass123!"
+          }
+        }
+      },
+      "UserLoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john.doe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "SecurePass123!"
+          }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Account ID (matches user _id or assigned ObjectId)",
+            "example": "6724ba1f80164e24ef5471a1"
+          },
+          "name": {
+            "type": "string",
+            "example": "John's Savings Account"
+          },
+          "balance": {
+            "type": "number",
+            "description": "Account balance",
+            "example": 15000.5
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "FROZEN",
+              "CLOSED"
+            ],
+            "example": "ACTIVE"
+          },
+          "currency": {
+            "type": "string",
+            "default": "NPR",
+            "example": "NPR"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateAccountRequest": {
+        "type": "object",
+        "required": [
+          "user",
+          "name"
+        ],
+        "properties": {
+          "user": {
+            "type": "string",
+            "description": "The User ID to associate with the account",
+            "example": "6724ba1f80164e24ef5471a1"
+          },
+          "name": {
+            "type": "string",
+            "description": "Unique account identifier name",
+            "example": "John Savings"
+          }
+        }
+      },
+      "DepositRequest": {
+        "type": "object",
+        "required": [
+          "user",
+          "moneyadd",
+          "IdempotencyKey"
+        ],
+        "properties": {
+          "user": {
+            "type": "string",
+            "description": "Target account ID to deposit money into",
+            "example": "6724ba1f80164e24ef5471a1"
+          },
+          "moneyadd": {
+            "type": "number",
+            "minimum": 0.01,
+            "description": "Amount to deposit (must be greater than zero)",
+            "example": 5000
+          },
+          "Description": {
+            "type": "string",
+            "description": "Note or reason for the deposit",
+            "example": "Cash deposit via branch counter"
+          },
+          "IdempotencyKey": {
+            "type": "string",
+            "description": "Unique key to ensure idempotency and prevent duplicate processing",
+            "example": "dep-9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
+          }
+        }
+      },
+      "TransferRequest": {
+        "type": "object",
+        "required": [
+          "fromAccount",
+          "toAccount",
+          "amount",
+          "IdempotencyKey"
+        ],
+        "properties": {
+          "fromAccount": {
+            "type": "string",
+            "description": "Source account ID",
+            "example": "6724ba1f80164e24ef5471a1"
+          },
+          "toAccount": {
+            "type": "string",
+            "description": "Destination account ID",
+            "example": "6724ba5080164e24ef5471b2"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0.01,
+            "description": "Amount to transfer (must not exceed available balance)",
+            "example": 1200
+          },
+          "IdempotencyKey": {
+            "type": "string",
+            "description": "Unique idempotency key to prevent double transfers",
+            "example": "tx-f81d4fae-7dec-11d0-a765-00a0c91e6bf6"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "6724bb9e80164e24ef5471c5"
+          },
+          "fromAccount": {
+            "type": "string",
+            "nullable": true,
+            "example": "6724ba1f80164e24ef5471a1"
+          },
+          "toAccount": {
+            "type": "string",
+            "nullable": true,
+            "example": "6724ba5080164e24ef5471b2"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "deposit",
+              "withdrawal",
+              "transfer"
+            ],
+            "example": "transfer"
+          },
+          "amount": {
+            "type": "number",
+            "example": 1200
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "example": "tx-f81d4fae-7dec-11d0-a765-00a0c91e6bf6"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "completed",
+              "failed"
+            ],
+            "example": "completed"
+          },
+          "description": {
+            "type": "string",
+            "example": "Amount has been Transferred."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LedgerEntry": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "6724bc2280164e24ef5471d8"
+          },
+          "account": {
+            "type": "string",
+            "description": "Referenced Account ID",
+            "example": "6724ba1f80164e24ef5471a1"
+          },
+          "amount": {
+            "type": "number",
+            "example": 1200
+          },
+          "transaction": {
+            "type": "string",
+            "description": "Referenced Transaction ID",
+            "example": "6724bb9e80164e24ef5471c5"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CREDIT",
+              "DEBIT"
+            ],
+            "example": "DEBIT"
+          }
+        }
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Operation completed successfully"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "An error occurred"
+          },
+          "status": {
+            "type": "string",
+            "example": "failed"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/transactions/transfer": {
+      "post": {
+        "summary": "Transfer money between accounts",
+        "description": "Executes an atomic peer-to-peer money transfer between two active accounts. Creates a transaction record, generates corresponding DEBIT and CREDIT ledger entries, and updates account balances using MongoDB transactions.",
+        "tags": [
+          "Transactions"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "message": "Transfer Successful!"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing parameters, accounts not found, or transaction already finished",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingParams": {
+                    "summary": "Missing required fields",
+                    "value": {
+                      "message": "Transfer isn't Possible"
+                    }
+                  },
+                  "notFound": {
+                    "summary": "Sender or Receiver account not found",
+                    "value": {
+                      "message": "Can't transfer! There is Either no Sender or Receiver Account."
+                    }
+                  },
+                  "alreadyFinished": {
+                    "summary": "Transaction idempotency key already processed",
+                    "value": {
+                      "message": "Transaction has already been finished."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing/invalid authentication token or transaction pending",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "Please login First!"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Account is not ACTIVE or sender has insufficient funds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "inactive": {
+                    "summary": "Account not active",
+                    "value": {
+                      "message": "account isn't active"
+                    }
+                  },
+                  "insufficientFunds": {
+                    "summary": "Insufficient balance",
+                    "value": {
+                      "message": "Insufficient balance current balance is:500 where amount to send is 1200"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal transaction failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transactions/deposit": {
+      "post": {
+        "summary": "Deposit money into an account",
+        "description": "Deposits money into an active bank account. Performs an idempotent transaction, generates a CREDIT entry in the ledger, and increments the account balance atomically.",
+        "tags": [
+          "Transactions"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DepositRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deposit completed successfully or idempotent replay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "message": "Transaction has been Completed"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (missing fields or deposit amount <= 0)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingFields": {
+                    "summary": "Required fields missing",
+                    "value": {
+                      "message": "User and Money is required!"
+                    }
+                  },
+                  "invalidAmount": {
+                    "summary": "Deposit amount not greater than zero",
+                    "value": {
+                      "message": "Deposit money should be greater than Zero."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid authentication cookie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "Please login First!"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Target user/account not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "Invalid user"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Account is not in ACTIVE status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "account isn't active"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Deposit transaction failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "Couldn't complete deposit"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "description": "Registers a new user with name, email, and password. Automatically creates a JWT token and sets it as an HTTP-only cookie.",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully. Sets the auth token in cookie.",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string",
+                  "example": "token=eyJhbGciOi...; Path=/; HttpOnly"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "User already exists with the provided email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "User already exists with email",
+                  "status": "failed"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Log in an existing user",
+        "description": "Authenticates user credentials and returns user details while issuing an HTTP-only JWT authentication cookie.",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged in successfully. Sets authentication cookie.",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string",
+                  "example": "token=eyJhbGciOi...; Max-Age=259200; Path=/; HttpOnly; SameSite=Strict"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Logged in successfully"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid credentials (incorrect password or user not found)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "Invalid Password"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error logging in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "Error logging in"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/create": {
+      "post": {
+        "summary": "Create a new bank account",
+        "description": "Creates a new account linked to a user. Requires a valid user ID and an account name.",
+        "tags": [
+          "Accounts"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "message": "Account has been created."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing required fields (user or name)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "The user and name is required."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Account already exists for this user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "message": "User already Exists"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

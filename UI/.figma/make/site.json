@@ -1,0 +1,10 @@
+{
+  "description": "Manage your bank account by logging in, checking your balance, transferring money to other accounts, and reviewing transaction history.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

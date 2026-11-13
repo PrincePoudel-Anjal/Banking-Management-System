@@ -1,0 +1,112 @@
+# FinFlow — Finance Dashboard
+
+A production-quality, fintech-grade Finance Dashboard built with React, Tailwind CSS, Recharts, and Zustand.
+
+---
+
+## Features
+
+- **Dashboard Overview** — Summary cards (balance, income, expenses), 6-month area trend chart, interactive category pie chart, recent transactions feed
+- **Transactions Page** — Full table with search, category/type filters, sortable columns (date, amount), hover-reveal admin actions
+- **Insights Page** — Month-over-month comparison, smart AI-style text insights, category bar chart comparison, top spending category
+- **Role-Based UI** — Toggle between `Admin` (add/edit/delete transactions) and `Viewer` (read-only) modes
+- **Add/Edit Modal** — Validated form with income/expense toggle, category picker, clean UX
+- **Dark Mode** — Full dark/light theme toggle with smooth transition, persisted to localStorage
+- **Data Persistence** — Zustand + localStorage keeps transactions and theme across sessions
+- **Responsive** — Mobile, tablet, desktop layouts; collapsible sidebar
+
+---
+
+## Tech Stack
+
+| Layer        | Technology                     |
+|--------------|-------------------------------|
+| Framework    | React 18 (functional + hooks) |
+| Styling      | Tailwind CSS v3               |
+| Charts       | Recharts                      |
+| State        | Zustand (with persist)        |
+| Icons        | Lucide React                  |
+| Build Tool   | Vite                          |
+| Fonts        | Syne + JetBrains Mono         |
+
+---
+
+## Setup
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Start dev server
+npm run dev
+
+# 3. Build for production
+npm run build
+```
+
+Runs on `http://localhost:5173` by default.
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── charts/
+│   │   ├── TrendChart.jsx        # 6-month area chart
+│   │   └── CategoryPieChart.jsx  # Interactive donut chart
+│   ├── layout/
+│   │   ├── Sidebar.jsx           # Collapsible sidebar nav
+│   │   └── Topbar.jsx            # Header with role toggle + theme
+│   ├── modals/
+│   │   └── TransactionModal.jsx  # Add/Edit transaction modal
+│   └── ui/
+│       ├── SummaryCards.jsx      # KPI cards
+│       └── RecentTransactions.jsx
+├── data/
+│   └── mockData.js               # 30 realistic transactions + trend data
+├── hooks/
+│   └── useMediaQuery.js
+├── pages/
+│   ├── DashboardPage.jsx
+│   ├── TransactionsPage.jsx
+│   └── InsightsPage.jsx
+├── store/
+│   └── useStore.js               # Zustand store (transactions, filters, role, UI)
+├── utils/
+│   └── formatters.js             # Currency, date, % formatters
+├── App.jsx
+├── main.jsx
+└── index.css
+```
+
+---
+
+## Design Decisions
+
+- **Syne** (display) + **JetBrains Mono** (numbers) — distinctive typographic pairing that reads "fintech" without being generic
+- **Slate base palette** with `brand-600` (`#0284c7`) accents — professional, not flashy
+- **Card system** — `card` utility class keeps all surfaces consistent across light/dark
+- **Zustand with `persist`** — minimal boilerplate, localStorage sync out of the box
+- **Role-based rendering** — admin actions (edit/delete buttons, Add button) are hidden from Viewer; no routing changes needed
+- **Empty state handling** — every list/table has a styled empty state
+- **Animation strategy** — `animate-slide-up` with staggered delays creates perceived performance without heavy libraries
+
+---
+
+## Screenshots
+
+> _Add screenshots here after running the app_
+
+- `dashboard-light.png` — Overview page, light mode
+- `dashboard-dark.png` — Overview page, dark mode
+- `transactions.png` — Transactions with filters open
+- `insights.png` — Insights page with comparison chart
+- `modal.png` — Add transaction modal
+
+---
+
+## License
+
+MIT
