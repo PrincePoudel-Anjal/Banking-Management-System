@@ -3,6 +3,8 @@ const userModel = require('../models/accounts.models.js');
 const ledgerModel = require('../models/ledger.models.js');
 const transactionModel = require('../models/transaction.models.js');
 const mongoose = require('mongoose');
+const crypto = require("crypto");
+
 
 
 // * - Create a new transaction[cite: 3]
@@ -21,7 +23,10 @@ const mongoose = require('mongoose');
 
 async function transfer(req, res) {
 
-    const {fromAccount,toAccount,amount,IdempotencyKey} = req.body;
+    const {fromAccount,toAccount,amount} = req.body;
+
+    const IdempotencyKey = crypto.randomUUID();
+    
     if(!fromAccount,!toAccount,!amount,!IdempotencyKey){
         return res.status(400).json({
             message:"Transfer isn't Possible"

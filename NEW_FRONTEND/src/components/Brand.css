@@ -1,0 +1,40 @@
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.24);
+}
+
+.brand-icon.large {
+  width: 48px;
+  height: 48px;
+}
+
+.brand-icon.default {
+  width: 40px;
+  height: 40px;
+}
+
+.brand-title {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+}
+
+.brand-title.large {
+  font-size: 24px;
+}
+
+.brand-title.default {
+  font-size: 20px;
+}
+

@@ -275,33 +275,30 @@ export default function Dashboard({
                 <button
                   type="button"
                   onClick={() => setHistoryFilter("all")}
-                  className={`rounded-md px-3 py-1.5 transition ${
-                    historyFilter === "all"
-                      ? "bg-white text-slate-900 shadow-sm"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
+                  className={`rounded-md px-3 py-1.5 transition ${historyFilter === "all"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                    }`}
                 >
                   All ({transactions.length})
                 </button>
                 <button
                   type="button"
                   onClick={() => setHistoryFilter("incoming")}
-                  className={`rounded-md px-3 py-1.5 transition ${
-                    historyFilter === "incoming"
-                      ? "bg-white text-emerald-600 shadow-sm"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
+                  className={`rounded-md px-3 py-1.5 transition ${historyFilter === "incoming"
+                    ? "bg-white text-emerald-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                    }`}
                 >
                   Deposits
                 </button>
                 <button
                   type="button"
                   onClick={() => setHistoryFilter("outgoing")}
-                  className={`rounded-md px-3 py-1.5 transition ${
-                    historyFilter === "outgoing"
-                      ? "bg-white text-sky-700 shadow-sm"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
+                  className={`rounded-md px-3 py-1.5 transition ${historyFilter === "outgoing"
+                    ? "bg-white text-sky-700 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                    }`}
                 >
                   Transfers
                 </button>
@@ -321,11 +318,10 @@ export default function Dashboard({
                     className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-t border-slate-100 py-4 first:border-t-0 first:pt-1 sm:gap-4 transition hover:bg-slate-50/50 rounded-xl px-2 -mx-2"
                   >
                     <span
-                      className={`grid size-11 place-items-center rounded-xl ${
-                        transaction.type === "incoming"
-                          ? "bg-emerald-50 text-emerald-600"
-                          : "bg-sky-50 text-sky-600"
-                      }`}
+                      className={`grid size-11 place-items-center rounded-xl ${transaction.type === "incoming"
+                        ? "bg-emerald-50 text-emerald-600"
+                        : "bg-sky-50 text-sky-600"
+                        }`}
                     >
                       {transaction.type === "incoming" ? (
                         <ArrowDownLeft size={19} aria-hidden="true" />
@@ -342,9 +338,8 @@ export default function Dashboard({
                       </p>
                     </div>
                     <p
-                      className={`money text-sm font-semibold sm:text-[15px] ${
-                        transaction.amount > 0 ? "text-emerald-600" : "text-slate-900"
-                      }`}
+                      className={`money text-sm font-semibold sm:text-[15px] ${transaction.amount > 0 ? "text-emerald-600" : "text-slate-900"
+                        }`}
                     >
                       {transaction.amount > 0 ? "+" : "−"}
                       {formatMoney(transaction.amount)}
@@ -365,11 +360,10 @@ export default function Dashboard({
               <button
                 type="button"
                 onClick={() => setActiveTab("transfer")}
-                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${
-                  activeTab === "transfer"
-                    ? "bg-white text-slate-950 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
+                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${activeTab === "transfer"
+                  ? "bg-white text-slate-950 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+                  }`}
               >
                 <Send size={14} />
                 Transfer
@@ -377,11 +371,10 @@ export default function Dashboard({
               <button
                 type="button"
                 onClick={() => setActiveTab("deposit")}
-                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${
-                  activeTab === "deposit"
-                    ? "bg-white text-slate-950 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
+                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${activeTab === "deposit"
+                  ? "bg-white text-slate-950 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+                  }`}
               >
                 <PlusCircle size={14} />
                 Deposit
@@ -389,11 +382,10 @@ export default function Dashboard({
               <button
                 type="button"
                 onClick={() => setActiveTab("account")}
-                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${
-                  activeTab === "account"
-                    ? "bg-white text-slate-950 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
+                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 transition ${activeTab === "account"
+                  ? "bg-white text-slate-950 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+                  }`}
               >
                 <CreditCard size={14} />
                 Account
