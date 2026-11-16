@@ -43,7 +43,7 @@ const sendEmail = async (to, subject, text, html) => {
 
 async function sendRegistrationEmail(userEmail,name){
   const subject = `Hello This is Prince Poudel.`;
-  const text = `Hello ${name}\\n Thank You for Registration.`;
+  const text = `Hello ${name}\n Thank You for Registration.`;
   const html = `Thank You for creating a gmail:{name}`;
 
   await sendEmail(userEmail,subject,text,html);

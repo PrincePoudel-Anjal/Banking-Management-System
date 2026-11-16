@@ -1,4 +1,5 @@
 const userModel = require('../models/user.models');
+const accountModel = require('../models/accounts.models');
 const jwt = require('jsonwebtoken');
 require("dotenv").config();
 
@@ -14,7 +15,7 @@ async function userRegisterController(req,res){
         });
     }
     const user = await userModel.create({
-        email,
+        email,  
         password,
         name,
     });
@@ -44,7 +45,6 @@ async function userLogin(req, res) {
                 message: 'No User Found Please Register First'
             });
         }
-
         const isMatch = await user.comparePassword(password);
 
         if (!isMatch) {
@@ -52,26 +52,28 @@ async function userLogin(req, res) {
                 message: "Password Didn't Match!"
             });
         }
+        const isAccount = await accountModel.findOne({_id:user._id});
+        var accountvalue = 0;
+        if(isAccount){accountvalue = 1;}
 
         const token = jwt.sign(
             { userId: user._id },
             process.env.JWT_SECRET,
             { expiresIn: '3d' }
         );
-
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             maxAge: 3 * 24 * 60 * 60 * 1000
         });
-
         return res.status(200).json({
             message: 'Logged in successfully',
             user: {
                 _id: user._id, 
                 email: user.email,
-                name: user.name
+                name: user.name,
+                accountvalue:accountvalue
             }
         });
     } catch (err) {

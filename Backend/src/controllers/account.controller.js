@@ -13,7 +13,7 @@ async function createAccount(req,res,next){
     }    
     const isaccount = await accountModel.findOne({_id:user});
     if(isaccount){
-       res.status(401).json({
+       return res.status(401).json({
         message:"User already Exists"
        });
     }
@@ -25,4 +25,33 @@ async function createAccount(req,res,next){
         message:"Account has been created."
     });
 }
-module.exports = createAccount;
+
+
+async function checkAccount(req, res) {
+    try {
+        // 1. Get the logged-in user's ID from your auth middleware
+        const {userId} = req.body; // (or req.user.id depending on how you sign your JWT)
+
+        // 2. Find the account using that ID
+        const account = await accountModel.findOne({ _id: userId });
+
+        if (!account) {
+            return res.status(404).json({
+                message: "Account not found."
+            });
+        }
+
+        // 3. Return the account details (name, balance, etc.)
+        return res.status(200).json({
+            account
+        });
+
+    } catch (error) {
+        console.error("Error fetching account:", error);
+        return res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}
+
+module.exports = { createAccount, checkAccount };

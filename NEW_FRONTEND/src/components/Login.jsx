@@ -1,9 +1,13 @@
 import React, { useState } from "react";
+import Signup from "./Signup";
+import { useNavigate } from "react-router-dom";
+
 function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
+  const navigate = useNavigate();      // Hooks should be called before happening of any event
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");    
@@ -55,7 +59,7 @@ function Login({ onLogin }) {
         <div style={{ marginTop: "10px" }}>
           <button type="submit">Login</button>
         </div>
-        <button onSignup = {onSignup}>SUBMIT</button>
+        <button type = "button" onClick = {()=>{navigate("/signup");}}>Signup</button>
       </form>
     </div>
   );
