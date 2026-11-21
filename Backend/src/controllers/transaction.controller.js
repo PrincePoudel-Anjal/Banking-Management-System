@@ -5,124 +5,113 @@ const transactionModel = require('../models/transaction.models.js');
 const mongoose = require('mongoose');
 const crypto = require("crypto");
 
-
-
 // * - Create a new transaction[cite: 3]
 //  * THE 10-STEP TRANSFER FLOW:[cite: 3]
-//  * 1. Validate request[cite: 3]
+//  * 1. Validate request[cite: 3]  -> To validate whether user is logged in or not
 //  * 2. Validate idempotency key[cite: 3]
 //  * 3. Check account status[cite: 3]
-//  * 4. Derive sender balance from ledger[cite: 3]
+//  * 4. Derive sender balance from ledger[cite: 3]-----Session Startes
 //  * 5. Create transaction (PENDING)[cite: 3]
 //  * 6. Create DEBIT ledger entry[cite: 3]
 //  * 7. Create CREDIT ledger entry[cite: 3]
 //  * 8. Mark transaction COMPLETED[cite: 3]
-//  * 9. Commit MongoDB session[cite: 3]
+//  * 9. Commit MongoDB session[cite: 3]----------------Session End
 //  * 10. Send email notification[cite: 3]
 //  */
 
-async function transfer(req, res) {
+async function transfer(){
 
-    const {fromAccount,toAccount,amount} = req.body;
+    const [fromAccount,transferId,amount,idempotencyKey] = req.body;
 
-    const IdempotencyKey = crypto.randomUUID();
-    
-    if(!fromAccount,!toAccount,!amount,!IdempotencyKey){
-        return res.status(400).json({
-            message:"Transfer isn't Possible"
-        });
-    }
-    
-    const fromUserAccount = await accountModel.findOne({
-            _id:fromAccount         
-        })
-    const toUserAccount = await accountModel.findOne({
-            _id:toAccount         
-        })  
-    
-    if(!fromUserAccount || !toUserAccount){
-        return res.status(400).json({
-            message:"Can't transfer! There is Either no Sender or Receiver Account."
-        });
-    }
-
-    if(fromUserAccount.status != "ACTIVE" || toUserAccount.status != "ACTIVE"){
-        return res.status(422).json({
-           message: "account isn't active",
-        });
-    }  
-
-
-    const isTransactionExists = await accountModel.findOne({
-        idempotencyKey:IdempotencyKey,
+    const isidempotency = transactionModel.findOne({
+        idempotencyKey: idempotencyKey
     });
-    
-    if(isTransactionExists){
-        
-        if(isTransactionExists.status == "completed"){
-            return res.status(400).json({
-                 message:"Transaction has already been finished."
+    if(isidempotency){
+        return res.status(400).json({
+            message:"The Transaction has previously been processed."
         });
-        }
-        
-        if(isTransactionExists.status == "pending"){
-            return res.status(401).json({
-                 message:"Transaction is pending."
-        });
-        }
-        
-        if(isTransactionExists.status == "failed"){
-            return res.status(402).json({
-                 message:"Transaction has failed previously."
-        });
-        }    
-        
     }
-    
-    const balance = await fromUserAccount.getBalance();
-    if(balance<amount){
-        return res.status(422).json({
-            message:`Insufficient balance current balance is:${balance} where amount to send is ${amount}`
-    }); 
-    }
-    
-    //Creating transaction
-    const session = await mongoose.startSession();
-    session.startTransaction() 
-    const [transaction] = await transactionModel.create([{
-        fromAccount:fromAccount,toAccount:toAccount,type:"transfer",amount:amount,idempotencyKey:IdempotencyKey,status:"pending",description:"Amount has been Transferred."
-    }],{session});
-    
-    const [debitLedgerEntry] = await ledgerModel.create([{
-        account:fromAccount,amount:amount,transaction:transaction._id,type:"DEBIT"
-    }],{session});
-    const [creditLedgerEntry] = await ledgerModel.create([{
-        account:toAccount,amount:amount,transaction:transaction._id,type:"CREDIT"
-    }],{session});
+    const isaccount = accountModel.findOne({
+        _id:transferId
+    });
 
+    const fromuseraccount = accountModel.findOne({
+        _id:fromAccount
+    });
+
+    if(!isaccount){
+        return res.status(401).json({
+            message:"Account Doesn't exist"
+        });
+    }
+    if(isaccount.status !="ACTIVE"){
+        return res.status(402).json({
+            message:"Account isn't Active!",
+        });
+    }
+    if(fromAccount.balance > amount){
+        return res.status(404).json({
+            message:"Insufficient Balance!"
+        });
+    }
+    const session = mongoose.startSession();
+    session.startTransaction()
+
+
+    const transaction = transactionModel.create({
+        fromAccount:fromAccount,
+        toAccount:transferId,
+        idempotencyKey:idempotencyKey,
+    });
+
+    const debitLedgerEntry = ledgerModel.create({
+        account:fromAccount,
+        amount:amount,
+        transaction:transaction,
+        type:"DEBIT",
+    });
+    const creditLedgerEntry = ledgerModel.create({
+        account:transferAccount,
+        amount:amount,
+        transaction:transaction,
+        type:"CREDIT",
+    });
     await accountModel.updateOne(
         {_id:fromAccount},
-        {$inc:{balance:-amount}},
-        {session}    
-    );
-    await accountModel.updateOne(
-        {_id:toAccount},
         {$inc:{balance:amount}},
-        {session}    
-    );
-
-    await transactionModel.updateOne(
-        {_id:transaction._id},
-        {$set:{status:"completed"}},
         {session}
     );
-    
+    await accountModel.updateOne(
+        {_id:transferId},
+        {$inc:{balance:-amount}},
+        {session}
+    );
 
     await session.commitTransaction();
-    session.endSession();
+    (await session).endSession
     return res.status(200).json({
-        message:"Transfer Successful!"});
-};
+        message:"Transfer Successful"
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -218,14 +207,3 @@ async function deposit(req,res){
 }
 
 module.exports = { transfer, deposit }; 
-
-
-
-
-
-
-
-
-
-
-

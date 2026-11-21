@@ -13,7 +13,7 @@ const transactionSchema = new mongoose.Schema({ //Tracks Every Balance that chan
     type: {
         type: String,
         enum: ["deposit", "withdrawal", "transfer"],
-        default: "deposit"
+        default: "transfer"
     },
     amount: {
         type: Number,

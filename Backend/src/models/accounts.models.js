@@ -30,7 +30,6 @@ const accountSchema = new mongoose.Schema({
         required: [true, "Currency is required."],
         default: "NPR"
     }
-
 }, {
     timestamps: true
 });
