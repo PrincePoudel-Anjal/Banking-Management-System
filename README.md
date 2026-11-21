@@ -28,11 +28,6 @@ Built with React, Node.js, Express, and MongoDB, this project focuses on backend
 - Double-entry ledger records for financial consistency.
 - Transaction history and status tracking.
 
-### 📧 Email Notifications
-- Automated email notifications using Nodemailer.
-- Transaction-related alerts.
-- Account activity notifications.
-
 ### 📊 Interactive Dashboard
 - Modern and responsive dashboard.
 - Account balance overview.
